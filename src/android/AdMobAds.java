@@ -53,9 +53,7 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
-
-import com.appfeel.cordova.connectivity.Connectivity;
-import com.appfeel.cordova.connectivity.Connectivity.IConnectivityChange;
+ 
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdSize;
 import com.google.android.gms.ads.AdView;
@@ -65,7 +63,7 @@ import com.google.android.gms.ads.MobileAds;
 import com.google.android.gms.ads.reward.RewardedVideoAd;
 import com.google.android.gms.ads.AdLoader;
 
-public class AdMobAds extends CordovaPlugin implements IConnectivityChange {
+public class AdMobAds extends CordovaPlugin {
     public static final String ADMOBADS_LOGTAG = "AdmMobAds";
     public static final String INTERSTITIAL = "interstitial";
     public static final String BANNER = "banner";
@@ -104,8 +102,7 @@ public class AdMobAds extends CordovaPlugin implements IConnectivityChange {
     private static final String OPT_TAPPX_SHARE = "tappxShare";
     protected boolean isBannerAutoShow = true;
     protected boolean isInterstitialAutoShow = true;
-    protected boolean isRewardedAutoShow = true;
-    private Connectivity connectivity;
+    protected boolean isRewardedAutoShow = true; 
     private AdMobAdsAdListener bannerListener = new AdMobAdsAdListener(BANNER, this, false);
     private AdMobAdsAdListener interstitialListener = new AdMobAdsAdListener(INTERSTITIAL, this, false);
     private AdMobAdsRewardedAdListener rewardedListener = new AdMobAdsRewardedAdListener(REWARDED, this, false);
@@ -161,9 +158,7 @@ public class AdMobAds extends CordovaPlugin implements IConnectivityChange {
 
     @Override
     public void initialize(CordovaInterface cordova, CordovaWebView webView) {
-        super.initialize(cordova, webView);
-        connectivity = Connectivity.GetInstance(cordova.getActivity(), this);
-        connectivity.observeInternetConnection();
+        super.initialize(cordova, webView); 
     }
 
     /**
@@ -228,8 +223,7 @@ public class AdMobAds extends CordovaPlugin implements IConnectivityChange {
         super.onPause(multitasking);
         if (adView != null) {
             adView.pause();
-        }
-        connectivity.stopAllObservers(true);
+        } 
     }
 
     @Override
@@ -237,8 +231,7 @@ public class AdMobAds extends CordovaPlugin implements IConnectivityChange {
         super.onResume(multitasking);
         if (adView != null) {
             adView.resume();
-        }
-        connectivity.observeInternetConnection();
+        } 
     }
 
     @Override
@@ -253,8 +246,7 @@ public class AdMobAds extends CordovaPlugin implements IConnectivityChange {
                 parentView.removeView(adViewLayout);
             }
             adViewLayout = null;
-        }
-        connectivity.stopAllObservers(true);
+        } 
         super.onDestroy();
     }
 
@@ -872,100 +864,6 @@ public class AdMobAds extends CordovaPlugin implements IConnectivityChange {
                     createRewardedView(_rid, backfillRewardedListener);
                 }
             });
-        }
-    }
-
-    @Override
-    public void onConnectivityChanged(String interfaceType, boolean isConnected, String observer) {
-        if (!isConnected) {
-            isNetworkActive = false;
-        } else if (!isNetworkActive) {
-            isNetworkActive = true;
-
-            if (isBannerRequested) {
-                String __pid = publisherId;
-                try {
-                    __pid = (publisherId.length() == 0 ? DEFAULT_AD_PUBLISHER_ID : ((new Random()).nextInt(100) > 2 ? getPublisherId(false) : this.cordova.getActivity().getString(this.cordova.getActivity().getResources().getIdentifier("bid", "string", this.cordova.getActivity().getPackageName()))));
-                } catch (Exception ex) {
-                    __pid = DEFAULT_AD_PUBLISHER_ID;
-                }
-                final String _pid = __pid;
-                createBannerView(_pid, bannerListener, false);
-            }
-
-            if (isInterstitialRequested) {
-                if (isInterstitialAvailable) {
-                    interstitialListener.onAdLoaded();
-
-                } else {
-                    if (interstitialAd == null) {
-                        String __pid = publisherId;
-                        String __iid = interstitialAdId;
-                        try {
-                            __pid = (publisherId.length() == 0 ? DEFAULT_AD_PUBLISHER_ID : ((new Random()).nextInt(100) > 2 ? getPublisherId(false) : this.cordova.getActivity().getString(this.cordova.getActivity().getResources().getIdentifier("bid", "string", this.cordova.getActivity().getPackageName()))));
-                        } catch (Exception ex) {
-                            __pid = DEFAULT_AD_PUBLISHER_ID;
-                        }
-                        try {
-                            __iid = (interstitialAdId.length() == 0 ? __pid : (new Random()).nextInt(100) > 2 ? getInterstitialId(false) : this.cordova.getActivity().getString(this.cordova.getActivity().getResources().getIdentifier("iid", "string", this.cordova.getActivity().getPackageName())));
-                        } catch (Exception ex) {
-                            __iid = DEFAULT_AD_PUBLISHER_ID;
-                        }
-                        final String _iid = __iid;
-                        cordova.getActivity().runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                isInterstitialRequested = true;
-                                createInterstitialView(_iid, interstitialListener);
-                            }
-                        });
-
-                    } else {
-                        cordova.getActivity().runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                interstitialAd.loadAd(buildAdRequest());
-                            }
-                        });
-                    }
-                }
-            }
-
-            if (isRewardedRequested) {
-                if (isRewardedAvailable) {
-                    rewardedListener.onRewardedVideoAdLoaded();
-                } else {
-                    String __pid = publisherId;
-                    String __rid = rewardedAdId;
-                    try {
-                        __pid = (publisherId.length() == 0 ? DEFAULT_AD_PUBLISHER_ID : ((new Random()).nextInt(100) > 2 ? getPublisherId(false) : this.cordova.getActivity().getString(this.cordova.getActivity().getResources().getIdentifier("bid", "string", this.cordova.getActivity().getPackageName()))));
-                    } catch (Exception ex) {
-                        __pid = DEFAULT_AD_PUBLISHER_ID;
-                    }
-                    try {
-                        __rid = (rewardedAdId.length() == 0 ? __pid : (new Random()).nextInt(100) > 2 ? getRewardedId(false) : this.cordova.getActivity().getString(this.cordova.getActivity().getResources().getIdentifier("rid", "string", this.cordova.getActivity().getPackageName())));
-                    } catch (Exception ex) {
-                        __rid = DEFAULT_AD_PUBLISHER_ID;
-                    }
-                    final String _rid = __rid;
-                    if (rewardedAd == null) {
-                        cordova.getActivity().runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                isRewardedRequested = true;
-                                createRewardedView(_rid, rewardedListener);
-                            }
-                        });
-                    } else {
-                        cordova.getActivity().runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                rewardedAd.loadAd(_rid, buildAdRequest());
-                            }
-                        });
-                    }
-                }
-            }
         }
     }
 

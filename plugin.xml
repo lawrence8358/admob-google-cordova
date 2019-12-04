@@ -12,10 +12,6 @@
     <engine name="cordova" version=">=4.0.0" />
   </engines>
 
-  <dependency id="cordova-connectivity-monitor" />
-  <!-- modify by lawrence 移除不需要的相依套件 -->
-  <!-- <dependency id="cordova-play-services-version-adapter" /> -->
-
   <js-module src="www/admob.js" name="AdMobAds">
     <clobbers target="window.admob" />
     <clobbers target="window.tappx" />
