@@ -551,12 +551,15 @@ public class AdMobAds extends CordovaPlugin implements IConnectivityChange {
                             }
 
                             if (wvParentView != null && wvParentView != parentView) {
+                                ViewGroup rootView = (ViewGroup)(webView.getView().getParent());
                                 wvParentView.removeView(webView.getView());
                                 ((LinearLayout) parentView).setOrientation(LinearLayout.VERTICAL);
                                 parentView.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT, 0.0F));
                                 webView.getView().setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT, 1.0F));
                                 parentView.addView(webView.getView());
-                                cordova.getActivity().setContentView(parentView);
+                                // fix google map issue https://github.com/mapsplugin/cordova-plugin-googlemaps/issues/1581
+                                // cordova.getActivity().setContentView(parentView);
+                                rootView.addView(parentView);
                             }
 
                         } else {
